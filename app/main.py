@@ -1,11 +1,8 @@
-import sqlite3
-
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy import select
-from pydantic import BaseModel
-from models import users
-from database import engine, metadata
+from models.models import users, User, UserCreate
+from db.database import engine, metadata
 
 # Создаем приложение FastAPI
 app = FastAPI()
@@ -14,21 +11,6 @@ app = FastAPI()
 metadata.create_all(bind=engine)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Pydantic модели для запросов и ответов
-class UserCreate(BaseModel):
-    name: str
-    email: str
-    age: int
-
-
-class User(BaseModel):
-    id: int
-    name: str
-    email: str
-    age: int
-
-    class Config:
-        orm_mode = True
 
 # Dependency для получения сессии базы данных
 def get_db():
@@ -42,6 +24,7 @@ def get_db():
 @app.get("/")
 def read_root():
     return {"message": "Добро пожаловать на тестовый микросервис"}
+
 
 @app.post("/users/", response_model=User)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
@@ -87,4 +70,5 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)

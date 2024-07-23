@@ -8,11 +8,13 @@ engine = create_engine(
 )
 metadata = MetaData()
 
+
 # Установка режима WAL и других параметров
 def set_pragmas(engine):
     with engine.connect() as conn:
         conn.execute(text("PRAGMA journal_mode=WAL;"))
         conn.execute(text("PRAGMA synchronous=NORMAL;"))
+
 
 # Установите PRAGMA после создания метаданных
 metadata.create_all(bind=engine)
