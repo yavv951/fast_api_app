@@ -1,0 +1,31 @@
+version: '3.9'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["pytest", "--alluredir=allure-results"]
+    volumes:
+      - .:/app
+    depends_on:
+      - web
+
+  allure:
+      image: frankescobar/allure-docker-service
+      ports:
+        - "5050:5050"
+      volumes:
+        - ./allure-results:/app/allure-results
+      entrypoint: ["allure", "serve", "/app/allure-results"]
+      depends_on:
+        - test
